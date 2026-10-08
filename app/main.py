@@ -33,7 +33,16 @@ trace.set_tracer_provider(tp)
 tracer = trace.get_tracer(__name__)
 
 # Metrics
-metric_reader = PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4317"), insecure=True))
+metric_reader = PeriodicExportingMetricReader(
+    OTLPMetricExporter(
+        endpoint=os.getenv(
+            "OTEL_EXPORTER_OTLP_ENDPOINT",
+            "http://otel-collector:4317",
+        ),
+        insecure=True,
+    ),
+    export_interval_millis=15_000,
+)
 mp = MeterProvider(resource=resource, metric_readers=[metric_reader])
 metrics.set_meter_provider(mp)
 meter = metrics.get_meter(__name__)
@@ -154,18 +163,32 @@ def get_order(order_id: str):
         with connect() as db:
             row = db.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
 
-        status_code = 200 if row else 404
-        # Record metric: normalized route and status code
-        request_counter.add(1, {
-            "http.route": "/api/orders/{order_id}",
-            "http.status_code": status_code
-        })
-
-        logger.info(f"Order lookup for {order_id} returned {status_code}")
-
         if row is None:
-            raise HTTPException(404, "Order not found")
-        return order_detail(row)
+            status_code = 404
+            request_counter.add(1, {
+                "http.route": "/api/orders/{order_id}",
+                "http.status_code": status_code
+            })
+            logger.info(f"Order lookup for {order_id} returned {status_code}")
+            raise HTTPException(status_code, "Order not found")
+
+        try:
+            result = order_detail(row)
+            status_code = 200
+            request_counter.add(1, {
+                "http.route": "/api/orders/{order_id}",
+                "http.status_code": status_code
+            })
+            logger.info(f"Order lookup for {order_id} returned {status_code}")
+            return result
+        except Exception:
+            status_code = 500
+            request_counter.add(1, {
+                "http.route": "/api/orders/{order_id}",
+                "http.status_code": status_code
+            })
+            logger.info(f"Order lookup for {order_id} returned {status_code}")
+            raise
 
 
 @app.post("/api/orders", status_code=201)
