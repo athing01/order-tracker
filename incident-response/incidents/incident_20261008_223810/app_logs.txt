@@ -1,0 +1,100 @@
+app-1  | INFO:     127.0.0.1:45242 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:45204 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:45218 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:43260 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:43266 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:44558 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:44568 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:36238 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:36250 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:53832 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:53836 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:49156 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:49172 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:56908 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:56924 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:33928 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:33936 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:54404 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:54408 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:58298 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:app.main:Order lookup for express-1002 returned 500
+app-1  | INFO:     10.215.24.1:44294 - "GET /api/orders/express-1002 HTTP/1.1" 500 Internal Server Error
+app-1  | ERROR:    Exception in ASGI application
+app-1  | Traceback (most recent call last):
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py", line 411, in run_asgi
+app-1  |     result = await app(  # type: ignore[func-returns-value]
+app-1  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+app-1  |     return await self.app(scope, receive, send)
+app-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1163, in __call__
+app-1  |     await super().__call__(scope, receive, send)
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+app-1  |     await self.middleware_stack(scope, receive, send)
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+app-1  |     raise exc
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+app-1  |     await self.app(scope, receive, _send)
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+app-1  |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+app-1  |     raise exc
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+app-1  |     await app(scope, receive, sender)
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+app-1  |     await self.app(scope, receive, send)
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/starlette/routing.py", line 670, in __call__
+app-1  |     await self.middleware_stack(scope, receive, send)
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+app-1  |     await route.handle(scope, receive, send)
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1281, in handle
+app-1  |     await super().handle(scope, receive, send)
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/starlette/routing.py", line 280, in handle
+app-1  |     await self.app(scope, receive, send)
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+app-1  |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+app-1  |     raise exc
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+app-1  |     await app(scope, receive, sender)
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+app-1  |     response = await f(request)
+app-1  |                ^^^^^^^^^^^^^^^^
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+app-1  |     raw_response = await run_endpoint_function(
+app-1  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+app-1  |     return await run_in_threadpool(dependant.call, **values)
+app-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+app-1  |     return await anyio.to_thread.run_sync(func)
+app-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/anyio/to_thread.py", line 65, in run_sync
+app-1  |     return await get_async_backend().run_sync_in_worker_thread(
+app-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2706, in run_sync_in_worker_thread
+app-1  |     return await future
+app-1  |            ^^^^^^^^^^^^
+app-1  |   File "/app/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1100, in run
+app-1  |     result = context.run(func, *args)
+app-1  |              ^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/app/app/main.py", line 176, in get_order
+app-1  |     result = order_detail(row)
+app-1  |              ^^^^^^^^^^^^^^^^^
+app-1  |   File "/app/app/main.py", line 114, in order_detail
+app-1  |     estimated_at = placed_at.replace(day=placed_at.day + 2)
+app-1  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  | ValueError: day is out of range for month
+app-1  | INFO:app.main:Order lookup for standard-1002 returned 404
+app-1  | INFO:     10.215.24.1:44304 - "GET /api/orders/standard-1002 HTTP/1.1" 404 Not Found
+app-1  | INFO:     127.0.0.1:58328 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:59494 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:59500 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:34192 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:34200 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:58860 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:58872 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:41102 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:41108 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:43896 - "GET /healthz HTTP/1.1" 200 OK

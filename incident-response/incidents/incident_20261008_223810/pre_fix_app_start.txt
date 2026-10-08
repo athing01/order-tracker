@@ -1,0 +1,2 @@
+$ docker inspect 5c56e127538e8fa163df32d0a31d4954e223a8901bf33a3280f265ad8d28a759 --format {{.State.StartedAt}}\nexit_code=0\n--- stdout ---\n2026-10-08T09:09:16.307523026Z
+\n--- stderr ---\n\n

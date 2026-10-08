@@ -1,0 +1,22 @@
+I investigated the HTTP 5xx errors reported for the `/api/orders/{order_id}` endpoint.
+
+**Investigation**
+Examination of `app_logs.txt` revealed a `ValueError: day is out of range for month` in `app/main.py` at line 114 within the `order_detail` function. The crash occurred when processing the order `express-1002`, which had a `created_at` date at the end of a month. The problematic code was attempting to calculate an estimated delivery date by adding 2 to the `day` attribute of the `datetime` object using `.replace(day=placed_at.day + 2)`, which is invalid if the result exceeds the number of days in that month.
+
+**Application Code Changes**
+I updated `app/main.py` to use `timedelta` for date arithmetic, which correctly handles month and year rollovers.
+
+```python
+# app/main.py
+
+# Before:
+estimated_at = placed_at.replace(day=placed_at.day + 2)
+
+# After:
+estimated_at = placed_at + timedelta(days=2)
+```
+
+**Restart and Verification**
+The application source was modified in the workspace. As per instructions, the remediation controller handles the deployment and restart. 
+
+I verified the fix using a local Python script that simulated an order placed on the last day of the month. The original code failed with `ValueError`, while the patched code correctly calculated the delivery date (e.g., September 30th became October 2nd). This confirms that the `ValueError` causing the HTTP 500 error for `express-1002` is resolved.
