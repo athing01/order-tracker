@@ -1,4 +1,16 @@
 apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: taskflow-q6-responder
+    receivers:
+      - uid: taskflow-q6-responder
+        type: webhook
+        disableResolveMessage: true
+        settings:
+          url: http://10.215.24.1:8001/alerts
+          httpMethod: POST
+
 groups:
   - orgId: 1
     name: 'Order Tracker Alerts'
@@ -7,31 +19,20 @@ groups:
     rules:
       - title: 'HTTP 5xx Errors'
         uid: 'q4-http-5xx-alert'
-        condition: B
+        condition: A
         data:
           - refId: A
             relativeTimeRange:
               from: 60
               to: 0
-            datasourceUid: 'prometheus'
+            datasourceUid: 'PBFA97CFB590B2093'
             model:
               expr: 'sum by (http_route) (rate(http_requests_total{http_status_code=~"5.."}[1m]))'
+              instant: true
               intervalMs: 1000
               maxDataPoints: 43200
+              range: false
               refId: A
-          - refId: B
-            datasourceUid: '-100'
-            model:
-              conditions:
-                - evaluator: 'gt'
-                  operator: { '*': 'gt' }
-                  query: { 'params': [ 'A' ] }
-                  type: 'query'
-                - evaluator: 'gt'
-                  operator: { '*': 'gt' }
-                  query: { 'params': [ 'A' ] }
-                  type: 'query'
-              type: 'query'
         for: 0m
         annotations:
           summary: 'HTTP 5xx errors detected on {{ $labels.http_route }}'
@@ -40,3 +41,5 @@ groups:
           severity: critical
         noDataState: OK
         execErrState: OK
+        notification_settings:
+          receiver: taskflow-q6-responder
