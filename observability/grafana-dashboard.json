@@ -1,0 +1,27 @@
+{
+  "title": "Order Tracker Request Dashboard",
+  "panels": [
+    {
+      "title": "Request Count by Status",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(http_requests_total) by (http_status_code)",
+          "legendFormat": "Status {{http_status_code}}"
+        }
+      ]
+    },
+    {
+      "title": "Request Count by Route",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(http_requests_total) by (http_route)",
+          "legendFormat": "{{http_route}}"
+        }
+      ]
+    }
+  ]
+}

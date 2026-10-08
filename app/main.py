@@ -13,31 +13,34 @@ from pydantic import BaseModel, Field
 from opentelemetry import trace, metrics, _logs
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import SimpleSpanProcessor, ConsoleSpanExporter
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader, ConsoleMetricExporter
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk._logs import LoggerProvider
-from opentelemetry.sdk._logs.export import BatchLogRecordProcessor, ConsoleLogRecordExporter
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
 
 # Configure OpenTelemetry
 resource = Resource.create({"service.name": "order-tracker"})
 
 # Tracing
 tp = TracerProvider(resource=resource)
-tp.add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter()))
+tp.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4317"), insecure=True)))
 trace.set_tracer_provider(tp)
 tracer = trace.get_tracer(__name__)
 
 # Metrics
-metric_reader = PeriodicExportingMetricReader(ConsoleMetricExporter())
+metric_reader = PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4317"), insecure=True))
 mp = MeterProvider(resource=resource, metric_readers=[metric_reader])
 metrics.set_meter_provider(mp)
 meter = metrics.get_meter(__name__)
 
 # Logging
 lp = LoggerProvider(resource=resource)
-lp.add_log_record_processor(BatchLogRecordProcessor(ConsoleLogRecordExporter()))
+lp.add_log_record_processor(BatchLogRecordProcessor(OTLPLogExporter(endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4317"), insecure=True)))
 _logs.set_logger_provider(lp)
 
 # Integrate OTel with Python logging
