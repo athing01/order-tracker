@@ -1,0 +1,3 @@
+# incident-response/requirements.txt
+fastapi
+uvicorn
