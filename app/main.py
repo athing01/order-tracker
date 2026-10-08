@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -9,6 +10,49 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
+from opentelemetry import trace, metrics, _logs
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor, ConsoleSpanExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader, ConsoleMetricExporter
+from opentelemetry.sdk._logs import LoggerProvider
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor, ConsoleLogRecordExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
+# Configure OpenTelemetry
+resource = Resource.create({"service.name": "order-tracker"})
+
+# Tracing
+tp = TracerProvider(resource=resource)
+tp.add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter()))
+trace.set_tracer_provider(tp)
+tracer = trace.get_tracer(__name__)
+
+# Metrics
+metric_reader = PeriodicExportingMetricReader(ConsoleMetricExporter())
+mp = MeterProvider(resource=resource, metric_readers=[metric_reader])
+metrics.set_meter_provider(mp)
+meter = metrics.get_meter(__name__)
+
+# Logging
+lp = LoggerProvider(resource=resource)
+lp.add_log_record_processor(BatchLogRecordProcessor(ConsoleLogRecordExporter()))
+_logs.set_logger_provider(lp)
+
+# Integrate OTel with Python logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
+LoggingInstrumentor().instrument()
+
+# Define a custom metric for request count
+request_counter = meter.create_counter(
+    "http_requests_total",
+    unit="1",
+    description="Total number of HTTP requests",
+)
 
 DB_PATH = Path(os.getenv("ORDER_DB_PATH", "data/orders.db"))
 STATUSES = {"received", "preparing", "shipped", "delivered"}
@@ -73,6 +117,8 @@ class StatusUpdate(BaseModel):
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     init_db()
+    # Instrument FastAPI app
+    FastAPIInstrumentor.instrument_app(_app)
     yield
 
 
@@ -100,11 +146,23 @@ def list_orders():
 
 @app.get("/api/orders/{order_id}")
 def get_order(order_id: str):
-    with connect() as db:
-        row = db.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
-    if row is None:
-        raise HTTPException(404, "Order not found")
-    return order_detail(row)
+    # Create a manual span for the order lookup to ensure it's visible and has a real ID
+    with tracer.start_as_current_span("get_order_lookup") as span:
+        with connect() as db:
+            row = db.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
+
+        status_code = 200 if row else 404
+        # Record metric: normalized route and status code
+        request_counter.add(1, {
+            "http.route": "/api/orders/{order_id}",
+            "http.status_code": status_code
+        })
+
+        logger.info(f"Order lookup for {order_id} returned {status_code}")
+
+        if row is None:
+            raise HTTPException(404, "Order not found")
+        return order_detail(row)
 
 
 @app.post("/api/orders", status_code=201)
@@ -118,6 +176,7 @@ def create_order(order: NewOrder):
             (order_id, order.customer, order.item, order.priority, "received",
              datetime.now(timezone.utc).isoformat()),
         )
+    # Note: passing None for request as this is an internal call not handled by FastAPI routing
     return get_order(order_id)
 
 
@@ -132,4 +191,5 @@ def update_status(order_id: str, update: StatusUpdate):
         )
     if cursor.rowcount == 0:
         raise HTTPException(404, "Order not found")
+    # Note: passing None for request as this is an internal call not handled by FastAPI routing
     return get_order(order_id)
