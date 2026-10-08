@@ -1,0 +1,1 @@
+The Grafana alert `ResponderTest` has been received. As this is a test notification with no incident to fix, I acknowledge the test and confirm that I am functioning correctly.
