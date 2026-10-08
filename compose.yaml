@@ -70,6 +70,7 @@ services:
     volumes:
       - ./observability/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./observability/grafana-dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ./observability/grafana-alerting.yaml:/etc/grafana/provisioning/alerting/alerting.yaml
       - ./observability/grafana-dashboard.json:/var/lib/grafana/dashboards/dashboard.json
     restart: unless-stopped
     depends_on:

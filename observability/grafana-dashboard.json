@@ -1,4 +1,5 @@
 {
+  "uid": "order-tracker-request",
   "title": "Order Tracker Request Dashboard",
   "panels": [
     {

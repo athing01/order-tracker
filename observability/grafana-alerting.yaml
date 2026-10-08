@@ -1,0 +1,42 @@
+apiVersion: 1
+groups:
+  - orgId: 1
+    name: 'Order Tracker Alerts'
+    folder: 'Alerts'
+    interval: 1m
+    rules:
+      - title: 'HTTP 5xx Errors'
+        uid: 'q4-http-5xx-alert'
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 60
+              to: 0
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'sum by (http_route) (rate(http_requests_total{http_status_code=~"5.."}[1m]))'
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            datasourceUid: '-100'
+            model:
+              conditions:
+                - evaluator: 'gt'
+                  operator: { '*': 'gt' }
+                  query: { 'params': [ 'A' ] }
+                  type: 'query'
+                - evaluator: 'gt'
+                  operator: { '*': 'gt' }
+                  query: { 'params': [ 'A' ] }
+                  type: 'query'
+              type: 'query'
+        for: 0m
+        annotations:
+          summary: 'HTTP 5xx errors detected on {{ $labels.http_route }}'
+          description: 'The endpoint {{ $labels.http_route }} is returning 5xx errors over the last 1 minute. View the Order Tracker Request Dashboard: http://localhost:3000/d/order-tracker-request/order-tracker-request-dashboard'
+        labels:
+          severity: critical
+        noDataState: OK
+        execErrState: OK
