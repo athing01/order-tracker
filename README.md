@@ -34,3 +34,13 @@ Run tests with `uv run --frozen pytest -q`. Stop the app with `docker compose do
 | PATCH | `/api/orders/{id}` | Change an order status |
 
 The app uses SQLite to keep setup small. Run one app container at a time. The course exercise is about detecting and handling an incident, not scaling the database.
+
+---
+## Homework 4
+
+This fork contains my implementation of Homework 4:
+**DevOps and Observability for AI-Built Apps**
+
+## Related Project
+
+[AI Dev Tools Zoomcamp — Module 4 / TaskFlow](https://github.com/athing01/ai-dev-tools-zoomcamp/tree/main/module-4)
